@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabuada Interativa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .painel-pergunta {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            display: inline-block;
+            border-radius: 5px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 250px;
+        }
+
+        td, th {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #eee;
+        }
+    </style>
+    <script>
+        window.onload = inicio;
+
+        // Vetor bidimensional: [multiplicador, multiplicando, icone_status]
+        let listaContas = [
+            [1, 7, ""],
+            [2, 7, ""],
+            [3, 7, ""],
+            [4, 7, ""],
+            [5, 7, ""],
+            [6, 7, ""],
+            [7, 7, ""],
+            [8, 7, ""],
+            [9, 7, ""],
+            [10, 7, ""]
+        ];
+
+        let indiceAtual = 0; // Começa na primeira conta (7 x 1)
+
+        function inicio() {
+            let botao = document.getElementById('btnVerificar');
+            botao.addEventListener('click', verificarResposta);
+            atualizar();
+        }
+
+        function verificarResposta() {
+            let campoResposta = document.getElementById('resposta');
+            let respostaUsuario = Number(campoResposta.value);
+
+            let n1 = listaContas[indiceAtual][1];
+            let n2 = listaContas[indiceAtual][0];
+            let respostaCorreta = n1 * n2;
+
+            // Verifica se o usuário acertou ou errou
+            if (respostaUsuario == respostaCorreta) {
+                listaContas[indiceAtual][2] = "✅";
+            } else {
+                listaContas[indiceAtual][2] = "❌";
+            }
+
+            // Procura a próxima conta que ainda não foi acertada (que não tem ✅)
+            let achouProxima = false;
+            for (let i = 0; i < listaContas.length; i++) {
+                if (listaContas[i][2] !== "✅") {
+                    indiceAtual = i;
+                    achouProxima = true;
+                    break;
+                }
+            }
+
+            // Se não achou nenhuma sem ✅, significa que o usuário terminou tudo
+            if (achouProxima == false) {
+                indiceAtual = -1;
+            }
+
+            campoResposta.value = ""; // Limpa o campo de texto
+            atualizar();
+        }
+
+        function atualizar() {
+            let textoPergunta = document.getElementById('textoPergunta');
+            let campoResposta = document.getElementById('resposta');
+            let botao = document.getElementById('btnVerificar');
+
+            // 1. Atualiza o painel da próxima pergunta
+            if (indiceAtual !== -1) {
+                let n1 = listaContas[indiceAtual][1];
+                let n2 = listaContas[indiceAtual][0];
+                textoPergunta.innerHTML = "Quanto é " + n1 + " x " + n2 + "? ";
+            } else {
+                textoPergunta.innerHTML = "<strong>Parabéns! Você acertou toda a tabuada!</strong>";
+                campoResposta.disabled = true;
+                botao.disabled = true;
+            }
+
+            // 2. Atualiza a tabela de tabuada na página
+            let tabela = document.getElementById('corpoTabela');
+            tabela.innerHTML = ""; // Limpa a tabela antes de redesenhar
+
+            for (let i = 0; i < listaContas.length; i++) {
+                let n1 = listaContas[i][1];
+                let n2 = listaContas[i][0];
+                let status = listaContas[i][2];
+
+                tabela.innerHTML += "<tr>" +
+                    "<td>" + n1 + " x " + n2 + "</td>" +
+                    "<td>=</td>" +
+                    "<td>" + (n1 * n2) + "</td>" +
+                    "<td>" + status + "</td>" +
+                    "</tr>";
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <h2>Tabuada do 7</h2>
+
+    <div class="painel-pergunta">
+        <span id="textoPergunta"></span>
+        <input type="number" id="resposta">
+        <button id="btnVerificar">Responder</button>
+    </div>
+
+    <h3>Progresso:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Conta</th>
+                <th></th>
+                <th>Resultado</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="corpoTabela">
+            </tbody>
+    </table>
+</body>
+
+</html>
